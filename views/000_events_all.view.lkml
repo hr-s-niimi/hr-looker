@@ -1,3 +1,5 @@
+
+
 view: events_all {
   sql_table_name: `hop4-analysis.analytics_410720616.events_*` ;;
   view_label: "ga_event _data"
@@ -15,15 +17,9 @@ view: events_all {
     timeframes: [date, week, month, year]
   }
 
-
   dimension: user_pseudo_id {
     type: string
     sql: ${TABLE}.user_pseudo_id ;;
-  }
-
-  measure: count {
-    type: count
-    label: "カウント"
   }
 
   measure: uu_count {
@@ -32,6 +28,10 @@ view: events_all {
     label: "ユニークユーザーカウント"
   }
 
+  measure: count {
+    type: count
+    label: "カウント"
+  }
 
   dimension: app_info__firebase_app_id {
     type: string
@@ -343,6 +343,32 @@ view: events_all {
     type: string
     sql: ${TABLE}.event_name ;;
   }
+
+  measure: total_page_views {
+    group_label: "Events"
+    label: "ページビュー"
+    description: "The total number of pageviews for the property."
+    type: count
+    filters: [event_name: "page_view"]
+    value_format_name: decimal_1
+  }
+
+  measure: total_cvs {
+    group_label: "Events"
+    label: "CV数"
+    description: "The total number of pageviews for the property."
+    type: count
+    filters: [event_name: "completed"]
+    value_format_name: decimal_1
+  }
+
+  measure: conversion_rate {
+    group_label: "Events"
+    type: number
+    sql: ${total_cvs} / ${events_all__event_params.session_count} ;;
+    value_format_name: percent_2
+  }
+
   # This field is hidden, which means it will not show up in Explore.
   # If you want this field to be displayed, remove "hidden: yes".
 
@@ -504,6 +530,7 @@ view: events_all {
     sql: ${TABLE}.user_properties ;;
   }
 
+
   # ----- Sets of fields for drilling ------
   set: detail {
     fields: [
@@ -519,6 +546,7 @@ view: events_all {
   }
 
 }
+
 
 
 # The name of this view in Looker is "Events all Items"
@@ -689,6 +717,7 @@ view: events_all__event_params {
   }
 
   dimension: key {
+    full_suggestions: yes
     type: string
     sql: key ;;
   }
@@ -724,6 +753,22 @@ view: events_all__event_params {
   measure: count {
     type: count
   }
+
+  measure: session_count {
+    label: "セッション数"
+    type: count_distinct
+    sql: ${value__int_value} ;;
+    filters: [key: "ga_session_id"]
+  }
+
+  measure: page_view_count {
+    label: "ページビュー数"
+    type: count_distinct
+    sql: ${value__int_value} ;;
+    filters: [key: "page_view "]
+  }
+
+
 }
 
 # The name of this view in Looker is "Events all User Properties"
