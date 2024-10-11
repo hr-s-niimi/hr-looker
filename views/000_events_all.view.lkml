@@ -1,8 +1,15 @@
-
-
 view: events_all {
   sql_table_name: `hop4-analysis.analytics_410720616.events_*` ;;
-  view_label: "ga_event _data"
+  view_label: "ga_event_data"
+
+  #-------------------------------------------
+  # view: events_allのprimary_keyを定義
+  dimension: event_id {
+    primary_key: yes
+    type: string
+    sql: CONCAT(${user_pseudo_id}, '-', ${event_timestamp}) ;;
+  }
+  #-------------------------------------------
 
   dimension: event_date {
     type: string
@@ -359,6 +366,15 @@ view: events_all {
     description: "The total number of pageviews for the property."
     type: count
     filters: [event_name: "completed"]
+    value_format_name: decimal_1
+  }
+
+  measure: pageviews_per_session {
+    group_label: "Events"
+    label: "セッションあたりのページビュー数"
+    description: "1セッションあたりの平均ページビュー数"
+    type: number
+    sql: ${total_page_views} / ${events_all__event_params.session_count} ;;
     value_format_name: decimal_1
   }
 
@@ -761,12 +777,19 @@ view: events_all__event_params {
     filters: [key: "ga_session_id"]
   }
 
-  measure: page_view_count {
-    label: "ページビュー数"
-    type: count_distinct
-    sql: ${value__int_value} ;;
-    filters: [key: "page_view "]
+  #-------------------------------------------
+  # view: events_all__event_paramsのprimary_keyを定義
+  dimension: id {
+    primary_key: yes
+    hidden: yes
+    sql: CONCAT(CAST(${key} AS STRING),'|', CAST(${offset} AS STRING))  ;;
   }
+
+  dimension: offset {
+    type: number
+    sql:  events_all__event__params_offset;;
+  }
+  #-------------------------------------------
 
 
 }
