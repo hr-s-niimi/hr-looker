@@ -29,17 +29,6 @@ view: events_all {
     sql: ${TABLE}.user_pseudo_id ;;
   }
 
-  measure: uu_count {
-    type: count_distinct
-    sql: ${user_pseudo_id} ;;
-    label: "ユニークユーザーカウント"
-  }
-
-  measure: count {
-    type: count
-    label: "カウント"
-  }
-
   dimension: app_info__firebase_app_id {
     type: string
     sql: ${TABLE}.app_info.firebase_app_id ;;
@@ -351,40 +340,6 @@ view: events_all {
     sql: ${TABLE}.event_name ;;
   }
 
-  measure: total_page_views {
-    group_label: "Events"
-    label: "ページビュー"
-    description: "The total number of pageviews for the property."
-    type: count
-    filters: [event_name: "page_view"]
-    value_format_name: decimal_1
-  }
-
-  measure: total_cvs {
-    group_label: "Events"
-    label: "CV数"
-    description: "The total number of pageviews for the property."
-    type: count
-    filters: [event_name: "completed"]
-    value_format_name: decimal_1
-  }
-
-  measure: pageviews_per_session {
-    group_label: "Events"
-    label: "セッションあたりのページビュー数"
-    description: "1セッションあたりの平均ページビュー数"
-    type: number
-    sql: ${total_page_views} / ${events_all__event_params.session_count} ;;
-    value_format_name: decimal_1
-  }
-
-  measure: conversion_rate {
-    group_label: "Events"
-    type: number
-    sql: ${total_cvs} / ${events_all__event_params.session_count} ;;
-    value_format_name: percent_2
-  }
-
   # This field is hidden, which means it will not show up in Explore.
   # If you want this field to be displayed, remove "hidden: yes".
 
@@ -545,6 +500,133 @@ view: events_all {
     hidden: yes
     sql: ${TABLE}.user_properties ;;
   }
+
+  #-------------------------------------------
+  ## Measures
+
+  measure: count {
+    type: count
+    label: "カウント"
+  }
+
+  measure: uu_count {
+    type: count_distinct
+    label: "ユニークユーザーカウント"
+    sql: ${user_pseudo_id} ;;
+  }
+
+  measure: total_new_users {
+    ## これで集計結果があっているのか？疑ってる
+    group_label: "User"
+    label: "新規ユーザー数"
+    type: count_distinct
+    sql: ${user_pseudo_id} ;;
+    filters: [event_name: "first_visit"]
+  }
+
+  measure: total_page_views {
+    group_label: "Events"
+    label: "ページビュー"
+    description: "The total number of pageviews for the property."
+    type: count
+    filters: [event_name: "page_view"]
+    value_format_name: decimal_1
+  }
+
+  measure: total_cvs {
+    group_label: "Events"
+    label: "CV数"
+    description: "The total number of pageviews for the property."
+    type: count
+    filters: [event_name: "completed"]
+    value_format_name: decimal_1
+  }
+
+  measure: pageviews_per_session {
+    group_label: "Events"
+    label: "セッションあたりのページビュー数"
+    description: "1セッションあたりの平均ページビュー数"
+    type: number
+    sql: ${total_page_views} / ${events_all__event_params.session_count} ;;
+    value_format_name: decimal_1
+  }
+
+  measure: conversion_rate {
+    group_label: "Events"
+    type: number
+    sql: ${total_cvs} / ${events_all__event_params.session_count} ;;
+    value_format_name: percent_2
+  }
+
+  #-------------------------------------------
+  ## 任意の期間同士で相対比較する
+
+  filter: duration1{
+    label: "集計対象期間1"
+    type: date
+  }
+
+  filter: duration2{
+    label: "集計対象期間2"
+    type: date
+  }
+
+  # measure: total_sales_duration1 {
+  #   label: "ページビュー（期間１）"
+  #   type: sum
+  #   sql: CASE
+  #         WHEN {% condition duration1 %}  TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date}))  {% endcondition %}
+  #         THEN 1
+  #         ELSE 0
+  #       END ;;
+  #   value_format_name: pv
+  # }
+
+  # measure: total_sales_duration2 {
+  #   label: "ページビュー（期間２）"
+  #   type: sum
+  #   sql: CASE
+  #         WHEN {% condition duration2 %}  TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date}))  {% endcondition %}
+  #         THEN 1
+  #         ELSE 0
+  #       END ;;
+  #   value_format_name: pv
+  # }
+
+  measure: total_page_views_duration1 {
+    label: "ページビュー（期間１）"
+    type: sum
+    sql: CASE
+        WHEN {% condition duration1 %} TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date})) {% endcondition %}
+        THEN CASE
+               WHEN event_name = 'page_view' THEN 1  -- event_name が 'page_view' の場合
+               WHEN EXISTS(SELECT 1 FROM UNNEST(event_params) WHERE key = 'page_view_type' AND value.int_value = 1) THEN 1  -- event_params に特定の条件を満たす要素が存在する場合
+               ELSE 0
+             END
+        ELSE 0
+      END ;;
+    value_format_name: decimal_0
+  }
+
+  measure: total_page_views_duration2 {
+    label: "ページビュー（期間２）"
+    type: sum
+    sql: CASE
+        WHEN {% condition duration2 %} TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date})) {% endcondition %}
+        THEN CASE
+               WHEN event_name = 'page_view' THEN 1  -- event_name が 'page_view' の場合
+               WHEN EXISTS(SELECT 1 FROM UNNEST(event_params) WHERE key = 'page_view_type' AND value.int_value = 1) THEN 1  -- event_params に特定の条件を満たす要素が存在する場合
+               ELSE 0
+             END
+        ELSE 0
+      END ;;
+    value_format_name: decimal_0
+  }
+
+  #-------------------------------------------
+
+
+  #-------------------------------------------
 
 
   # ----- Sets of fields for drilling ------
@@ -725,6 +807,20 @@ view: events_all__items {
 # The name of this view in Looker is "Events all Event Params"
 view: events_all__event_params {
 
+  #-------------------------------------------
+  # view: events_all__event_paramsのprimary_keyを定義
+  dimension: id {
+    primary_key: yes
+    hidden: yes
+    sql: CONCAT(CAST(${key} AS STRING),'|', CAST(${offset} AS STRING))  ;;
+  }
+
+  dimension: offset {
+    type: number
+    sql:  events_all__event__params_offset;;
+  }
+  #-------------------------------------------
+
 
   dimension: events_all__event_params {
     type: string
@@ -777,19 +873,36 @@ view: events_all__event_params {
     filters: [key: "ga_session_id"]
   }
 
-  #-------------------------------------------
-  # view: events_all__event_paramsのprimary_keyを定義
-  dimension: id {
-    primary_key: yes
-    hidden: yes
-    sql: CONCAT(CAST(${key} AS STRING),'|', CAST(${offset} AS STRING))  ;;
+  dimension: page_location {
+    label: "ページロケーション別"
+    type: string
+    sql: (SELECT value.string_value FROM UNNEST(event_params) WHERE key = "page_location") ;;
+    full_suggestions: yes
   }
 
-  dimension: offset {
-    type: number
-    sql:  events_all__event__params_offset;;
-  }
-  #-------------------------------------------
+  # measure: total_sales_duration1 {
+  #   label: "セッション（期間１）"
+  #   type: sum
+  #   sql: CASE
+  #       WHEN {% condition duration1 %} TIMESTAMP(${events_all.event_date}) {% endcondition %}
+  #       THEN COUNT(DISTINCT ${value__int_value})
+  #       ELSE 0
+  #     END ;;
+  #   filters: [key: "ga_session_id"]
+  #   value_format_name: session
+  # }
+
+  # measure: total_sales_duration2 {
+  #   label: "セッション（期間２）"
+  #   type: sum
+  #   sql: CASE
+  #       WHEN {% condition duration2 %} TIMESTAMP(${events_all.event_date}) {% endcondition %}
+  #       THEN COUNT(DISTINCT ${value__int_value})
+  #       ELSE 0
+  #     END ;;
+  #   filters: [key: "ga_session_id"]
+  #   value_format_name: session
+  # }
 
 
 }
