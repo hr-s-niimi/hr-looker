@@ -509,19 +509,54 @@ view: events_all {
     label: "カウント"
   }
 
-  measure: uu_count {
+  measure: total_users {
+    group_label: "User"
+    label: "ユーザー数"
     type: count_distinct
-    label: "ユニークユーザーカウント"
     sql: ${user_pseudo_id} ;;
   }
 
   measure: total_new_users {
-    ## これで集計結果があっているのか？疑ってる
     group_label: "User"
     label: "新規ユーザー数"
     type: count_distinct
     sql: ${user_pseudo_id} ;;
     filters: [event_name: "first_visit"]
+  }
+
+  measure: new_user_ratio {
+    group_label: "User"
+    label: "新規ユーザー割合"
+    type: number
+    sql: ${total_new_users} / ${total_users} ;;
+    value_format_name: percent_1
+  }
+
+  measure: new_user_ratio2 {
+    group_label: "User"
+    label: "新規ユーザー割合TEST"
+    type: number
+    sql: CASE
+        WHEN ${total_users} = 0 THEN 0  -- total_users が 0 の場合は 0 を返す
+        ELSE ${total_new_users} / ${total_users}
+      END ;;
+    value_format_name: percent_1
+  }
+
+
+  measure: total_repeat_users {
+    group_label: "User"
+    label: "リピーターユーザー数"
+    type: number
+    sql: ${total_users} - ${total_new_users} ;;
+  }
+
+  measure: repeat_user_ratio {
+    group_label: "User"
+    label: "リピーターユーザー割合"
+    type: number
+    sql: ${total_repeat_users} / ${total_users} ;;
+    value_format_name: percent_1
   }
 
   measure: total_page_views {
@@ -594,7 +629,7 @@ view: events_all {
   # }
 
   measure: total_page_views_duration1 {
-    label: "ページビュー（期間１）"
+    label: "ページビュー（集計対象期間1）"
     type: sum
     sql: CASE
         WHEN {% condition duration1 %} TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date})) {% endcondition %}
@@ -609,7 +644,7 @@ view: events_all {
   }
 
   measure: total_page_views_duration2 {
-    label: "ページビュー（期間２）"
+    label: "ページビュー（集計対象期間２）"
     type: sum
     sql: CASE
         WHEN {% condition duration2 %} TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date})) {% endcondition %}
@@ -621,6 +656,15 @@ view: events_all {
         ELSE 0
       END ;;
     value_format_name: decimal_0
+  }
+
+  measure: page_views_change_rate {
+    label: "ページビュー変化率 (期間1 - 期間2) / 期間2"
+    description: "過去のデータ（期間２）と比較して、現状を評価：前年同月比、前週比など
+    例：(期間１ - 期間２) / 期間1 = (150 - 100) / 100 = 0.5：期間２と比べて期間１は50%増加した"
+    type: number
+    sql: (${total_page_views_duration1} - ${total_page_views_duration2}) / ${total_page_views_duration2} ;;
+    value_format_name: percent_1
   }
 
   #-------------------------------------------
