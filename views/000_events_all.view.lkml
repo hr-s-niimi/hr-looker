@@ -575,6 +575,8 @@ view: events_all {
     type: count
     filters: [event_name: "completed"]
     value_format_name: decimal_1
+    ## クリックしたときに[ドリルダウン]するフィールドを追加
+    drill_fields: [user_pseudo_id, traffic_source__medium,traffic_source__source, events_all__event_params.session_count, total_cvs]
   }
 
   measure: pageviews_per_session {
