@@ -1,5 +1,5 @@
 view: events_all {
-  sql_table_name: `hop4-analysis.analytics_410720616.events_*` ;;
+  sql_table_name: `hop4-analysis.analytics_465873131.events_intraday_*` ;;
   view_label: "ga_event_data"
 
   #-------------------------------------------
