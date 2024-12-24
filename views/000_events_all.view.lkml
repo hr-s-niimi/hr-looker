@@ -17,6 +17,16 @@ view: events_all {
     hidden: yes
   }
 
+  # dimension: event_data_mm {
+  #   type: string
+  #   sql: TIMESTAMP(PARSE_DATETIME("%Y%m%d%H%M%S", ${event_date})) ;;
+  # }
+
+  dimension: event_date_mm {
+    type: string
+    sql: TIMESTAMP(PARSE_DATETIME("%Y%m%d%H%M%S", ${event_date})) ;;
+  }
+
   dimension_group: event_date_cast {
     type: time
     label: "イベント日"
@@ -576,7 +586,7 @@ view: events_all {
     filters: [event_name: "completed"]
     value_format_name: decimal_1
     ## クリックしたときに[ドリルダウン]するフィールドを追加
-    drill_fields: [user_pseudo_id, traffic_source__medium,traffic_source__source, events_all__event_params.session_count, total_cvs]
+    drill_fields: [event_date, user_pseudo_id, traffic_source__medium,traffic_source__source, events_all__event_params.session_count, total_cvs]
   }
 
   measure: pageviews_per_session {
