@@ -575,7 +575,7 @@ view: events_all {
     description: "The total number of pageviews for the property."
     type: count
     filters: [event_name: "page_view"]
-    value_format_name: decimal_1
+    value_format_name: decimal_0
   }
 
   measure: total_cvs {
@@ -604,6 +604,8 @@ view: events_all {
     sql: ${total_cvs} / ${events_all__event_params.session_count} ;;
     value_format_name: percent_2
   }
+
+
 
   #-------------------------------------------
   ## 任意の期間同士で相対比較する
@@ -927,6 +929,7 @@ view: events_all__event_params {
     type: count_distinct
     sql: ${value__int_value} ;;
     filters: [key: "ga_session_id"]
+    value_format_name: decimal_0
   }
 
   dimension: page_location {
@@ -934,6 +937,11 @@ view: events_all__event_params {
     type: string
     sql: (SELECT value.string_value FROM UNNEST(event_params) WHERE key = "page_location") ;;
     full_suggestions: yes
+  }
+
+  dimension: journey_id_start_value {
+    type: string
+    sql: CASE WHEN ${key} = 'journey_id_start' THEN ${value__string_value} ELSE NULL END;;
   }
 
   # measure: total_sales_duration1 {
