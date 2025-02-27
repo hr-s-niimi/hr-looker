@@ -22,10 +22,6 @@ view: events_all {
   #   sql: TIMESTAMP(PARSE_DATETIME("%Y%m%d%H%M%S", ${event_date})) ;;
   # }
 
-  dimension: event_date_mm {
-    type: string
-    sql: TIMESTAMP(PARSE_DATETIME("%Y%m%d%H%M%S", ${event_date})) ;;
-  }
 
   dimension_group: event_date_cast {
     type: time
@@ -33,6 +29,13 @@ view: events_all {
     sql: TIMESTAMP(PARSE_DATE("%Y%m%d",${event_date})) ;;
     timeframes: [date, week, month, year]
   }
+
+  dimension: event_date_yymmddhhmm {
+    type: string
+    label: "時間 (YYYY-MM-DD HH:MM)"
+    sql: FORMAT_TIMESTAMP('%Y-%m-%d %H:%M', TIMESTAMP_MICROS(CAST(${TABLE}.event_timestamp AS INT64)), 'Asia/Tokyo') ;;
+  }
+
 
   dimension: user_pseudo_id {
     type: string
@@ -569,6 +572,28 @@ view: events_all {
     value_format_name: percent_1
   }
 
+
+  # dimension: page_group {
+  #   label: "ページパスグループ"
+  #   type: string
+  #   sql: CASE
+  #       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaisengokuhara%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000124%' THEN '仙石原'
+  #       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaiporotp%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000129%' THEN 'ポロト'
+  #       ELSE 'その他'
+  #     END;;
+  # }
+
+  dimension: page_group {
+    label: "ページパスグループ"
+    type: string
+    sql: CASE
+       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaisengokuhara%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000124%' THEN '仙石原'
+       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaiporotp%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000129%' THEN 'ポロト'
+       WHEN ${events_all__event_params.page_location} LIKE '%/facilities/%' THEN CONCAT('施設ID:', REGEXP_EXTRACT(${events_all__event_params.page_location}, '/facilities/([0-9]+)'))
+       ELSE 'その他'
+     END;;
+  }
+
   measure: total_page_views {
     group_label: "Events"
     label: "ページビュー"
@@ -576,6 +601,7 @@ view: events_all {
     type: count
     filters: [event_name: "page_view"]
     value_format_name: decimal_0
+    drill_fields: [event_date, page_group, total_page_views]
   }
 
   measure: total_cvs {
@@ -586,7 +612,7 @@ view: events_all {
     filters: [event_name: "completed"]
     value_format_name: decimal_1
     ## クリックしたときに[ドリルダウン]するフィールドを追加
-    drill_fields: [event_date, user_pseudo_id, traffic_source__medium,traffic_source__source, events_all__event_params.session_count, total_cvs]
+    drill_fields: [event_date_yymmddhhmm, user_pseudo_id, events_all__event_params.page_location ,traffic_source__medium, total_cvs]
   }
 
   measure: pageviews_per_session {
@@ -704,8 +730,9 @@ view: events_all {
 }
 
 
-
+###################################################################
 # The name of this view in Looker is "Events all Items"
+###################################################################
 view: events_all__items {
   #sql_table_name: `hop4-analysis.analytics_410720616.events_*__items` ;;
 
@@ -862,7 +889,9 @@ view: events_all__items {
   }
 }
 
+###################################################################
 # The name of this view in Looker is "Events all Event Params"
+###################################################################ß
 view: events_all__event_params {
 
   #-------------------------------------------
@@ -930,7 +959,19 @@ view: events_all__event_params {
     sql: ${value__int_value} ;;
     filters: [key: "ga_session_id"]
     value_format_name: decimal_0
+    drill_fields: [events_all.event_date, events_all.page_group, session_count_by_group]
   }
+
+# 各グループ別のセッション数を正確に表示するための新しいメジャー
+  measure: session_count_by_group {
+    label: "グループ別セッション数"
+    description: "各ページグループ内でのセッション数（セッションの重複あり）"
+    type: count_distinct
+    sql: ${value__int_value} ;;
+    filters: [key: "ga_session_id"]
+    value_format_name: decimal_0
+  }
+
 
   dimension: page_location {
     label: "ページロケーション別"
@@ -970,8 +1011,9 @@ view: events_all__event_params {
 
 
 }
-
+###################################################################
 # The name of this view in Looker is "Events all User Properties"
+###################################################################
 view: events_all__user_properties {
 
   # No primary key is defined for this view. In order to join this view in an Explore,
