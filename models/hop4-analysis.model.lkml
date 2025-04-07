@@ -40,3 +40,7 @@ explore: events_all {
 explore: ga4_events_completed_to_journey_id_465873131{
   label: "ga4_events_completed_to_journey_id_465873131"
 }
+
+explore: tabirakiu_ygets_ab_test_model{
+  label: "tabirakiu_ygets_ab_test_model"
+}
