@@ -16,9 +16,14 @@ view: tabirakiu_ygets_ab_test_model {
     sql: CAST(DATE_TRUNC(${TABLE}.date, WEEK) as STRING) ;;
   }
 
-  dimension: date_month {
+  dimension: date_month_formatted {
     type: string
-    sql: CAST(DATE_TRUNC(${TABLE}.date, MONTH) as STRING) ;;
+    sql: FORMAT_DATE("%Y年%m月", ${TABLE}.date) ;;
+  }
+
+  filter: selected_month {
+    type: string
+    sql: ${date_month_formatted} ;; #ラベルを「2025年03月」のように表示するための加工
   }
 
   dimension: date_quarter {
