@@ -588,7 +588,7 @@ view: events_all {
     type: string
     sql: CASE
        WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaisengokuhara%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000124%' THEN '仙石原'
-       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaiporotp%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000129%' THEN 'ポロト'
+       WHEN ${events_all__event_params.page_location} LIKE '%/hotels/kaiporoto%' OR ${events_all__event_params.page_location} LIKE '%/facilities/0000000129%' THEN 'ポロト'
        WHEN ${events_all__event_params.page_location} LIKE '%/facilities/%' THEN CONCAT('施設ID:', REGEXP_EXTRACT(${events_all__event_params.page_location}, '/facilities/([0-9]+)'))
        ELSE 'その他'
      END;;
