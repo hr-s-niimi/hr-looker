@@ -1,5 +1,5 @@
 view: tabirakiu_ygets_ab_test_model {
-  sql_table_name: `hop4-analysis.recx.ab_testing` ;;
+  sql_table_name: `hop4-analysis.recx.product_comparison_result` ;;
 
   dimension: date_raw {
     type: string
@@ -64,4 +64,5 @@ view: tabirakiu_ygets_ab_test_model {
     type: count
     drill_fields: [date_date]
   }
+
 }
