@@ -1,9 +1,13 @@
 project_name: "hop4-analysis"
 
 application: hop4-analysis {
-  label: "My First Extension"
-  #url: "https://localhost:8080/bundle.js"
-  file: "bundle.js"
+  label: "HR Extension"
+
+  # --- ▼ 開発する時はこちらを有効にする (localhost) ---
+  url: "https://localhost:8080/bundle.js"
+
+  # --- ▼ リリースする時はこちらを有効にする (本番ファイル) ---
+  # file: "bundle.js"
 
   # 必要な権限（最低限の設定）
   entitlements: {
