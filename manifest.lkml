@@ -11,7 +11,7 @@ application: hop4-analysis {
 
   # 必要な権限（最低限の設定）
   entitlements: {
-    core_api_methods: ["me"]
+    core_api_methods: ["all_lookml_models"]
     use_embeds: yes
   }
 }
