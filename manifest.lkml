@@ -9,9 +9,15 @@ application: hop4-analysis {
   # --- ▼ リリースする時はこちらを有効にする (本番ファイル) ---
   # file: "bundle.js"
 
-  # 必要な権限（最低限の設定）
   entitlements: {
+    # 現在のコードで必要なAPI権限（これだけでOKです）
     core_api_methods: ["all_lookml_models"]
+
+    # ダッシュボード埋め込み等に使用
     use_embeds: yes
+
+    # 新しいタブでリンクを開くために必須の設定
+    new_window: yes
+    new_window_external_urls: ["https://hoshinoresorts.cloud.looker.com"]
   }
 }
