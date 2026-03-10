@@ -11,7 +11,7 @@ application: hop4-analysis {
 
   entitlements: {
     # 現在のコードで必要なAPI権限（これだけでOKです）
-    core_api_methods: ["all_lookml_models"]
+    core_api_methods: ["all_lookml_models", "me"]
 
     # ダッシュボード埋め込み等に使用
     use_embeds: yes
