@@ -1,7 +1,7 @@
 project_name: "hop4-analysis"
 
 application: hop4-analysis {
-  label: "HR Extension"
+  label: "Dev HR Extension"
 
   # --- ▼ 開発する時はこちらを有効にする (localhost) ---
   url: "https://localhost:8080/bundle.js"
