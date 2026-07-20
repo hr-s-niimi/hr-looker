@@ -63,6 +63,21 @@ view: +flebol_change_log {
     order_by_field: days_before_check_in
   }
 
+  # ==================== 期間区分 (This/Last) ====================
+  # extends した revenue_radar_period_compare の期間境界を使い、
+  # change_date が基準期間内なら 'This'、前期間内なら 'Last'、それ以外は NULL。
+  # app はこれを GROUP BY に使い、This/Last を1クエリで取得する。
+  dimension: period {
+    view_label: "期間指定"
+    label: "期間区分"
+    type: string
+    sql:
+      CASE
+        WHEN ${change_date} BETWEEN ${date_start} AND ${date_end} THEN 'This'
+        WHEN ${change_date} BETWEEN ${period_last_start} AND ${period_last_end} THEN 'Last'
+      END ;;
+  }
+
   # ==================== 件数 measure ====================
   measure: count_change {
     label: "CHANGE 件数"

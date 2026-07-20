@@ -1,8 +1,12 @@
 # ============================================================
 # 予約変更ログ (FleBOL) - 基底 view
 # ============================================================
+include: "/views/revenue_radar/revenue_radar_period_compare.view.lkml"
+
 
 view: flebol_change_log {
+  extends: [revenue_radar_period_compare]
+
   derived_table: {
     sql:
       SELECT * FROM `hop4-analysis.tabiraku_data_source.flebol_change_log_raw`

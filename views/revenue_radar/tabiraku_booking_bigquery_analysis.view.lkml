@@ -4,7 +4,10 @@
 # 1 行 = 1 CV イベント (重複なし、dedup 不要)
 # ============================================================
 
+include: "/views/revenue_radar/revenue_radar_period_compare.view.lkml"
+
 view: tabiraku_booking_bigquery_analysis {
+  extends: [revenue_radar_period_compare]
   sql_table_name: `hop4-analysis.tabiraku_data_source.tabiraku_booking_bigquery_analysis` ;;
 
   # ==================== primary key ====================
@@ -53,6 +56,20 @@ view: tabiraku_booking_bigquery_analysis {
     ]
     convert_tz: yes
     sql: ${TABLE}.conversionDate ;;
+  }
+
+  # ==================== 期間区分 (This/Last) ====================
+  # extends した revenue_radar_period_compare の期間境界を使い、
+  # conversion_date (JST) が基準期間内なら 'This'、前期間内なら 'Last'、それ以外 NULL。
+  dimension: period {
+    view_label: "期間指定"
+    label: "期間区分"
+    type: string
+    sql:
+      CASE
+        WHEN ${conversion_date} BETWEEN ${date_start} AND ${date_end} THEN 'This'
+        WHEN ${conversion_date} BETWEEN ${period_last_start} AND ${period_last_end} THEN 'Last'
+      END ;;
   }
 
   # ==================== measure ====================
