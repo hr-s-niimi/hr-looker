@@ -1,5 +1,5 @@
 # Define the database connection to be used for this model.
-connection: "hop4-analysis"
+connection: "hr-looker-application"
 
 # include all the views
 include: "/views/**/*.view.lkml"
