@@ -10,7 +10,7 @@
   elements:
   - title: CVR日別比較
     name: CVR日別比較
-    model: hop4-analysis
+    model: data_lab
     explore: tabirakiu_ygets_ab_test_model
     type: looker_grid
     fields: [tabirakiu_ygets_ab_test_model.date_date, tabirakiu_ygets_ab_test_model.actual_cvr_tabiraku,
@@ -69,7 +69,7 @@
     tab_name: ''
   - title: 無題
     name: 無題
-    model: hop4-analysis
+    model: data_lab
     explore: tabirakiu_ygets_ab_test_model
     type: marketplace_viz_multiple_value::multiple_value-marketplace
     fields: [tabirakiu_ygets_ab_test_model.average_actual_cvr_tabiraku]
@@ -132,7 +132,7 @@
     tab_name: ''
   - title: 無題 (コピー)
     name: 無題 (コピー)
-    model: hop4-analysis
+    model: data_lab
     explore: tabirakiu_ygets_ab_test_model
     type: marketplace_viz_multiple_value::multiple_value-marketplace
     fields: [tabirakiu_ygets_ab_test_model.average_predicted_cvr_ygets]
@@ -201,12 +201,11 @@
     tab_name: ''
   - title: CVR推移比較
     name: CVR推移比較
-    model: hop4-analysis
+    model: data_lab
     explore: tabirakiu_ygets_ab_test_model
     type: looker_line
     fields: [tabirakiu_ygets_ab_test_model.average_actual_cvr_tabiraku, tabirakiu_ygets_ab_test_model.average_predicted_cvr_ygets,
       tabirakiu_ygets_ab_test_model.date_date]
-    fill_fields: [tabirakiu_ygets_ab_test_model.date_date]
     sorts: [tabirakiu_ygets_ab_test_model.date_date]
     limit: 500
     column_limit: 50
@@ -476,7 +475,7 @@
     ui_config:
       type: dropdown_menu
       display: inline
-    model: hop4-analysis
+    model: data_lab
     explore: tabirakiu_ygets_ab_test_model
     listens_to_filters: []
     field: tabirakiu_ygets_ab_test_model.date_month_formatted
