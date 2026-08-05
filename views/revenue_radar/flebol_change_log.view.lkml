@@ -144,6 +144,11 @@ view: flebol_change_log {
     sql: ${TABLE}.roomCountDifference ;;
   }
 
+  dimension: guest_count_difference {
+    type: number
+    sql: ${TABLE}.guestCountDifference ;;
+  }
+
   dimension: package_codes_before {
     type: string
     sql: ARRAY_TO_STRING(${TABLE}.packageCodesBefore, ',') ;;
